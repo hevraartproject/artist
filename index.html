@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hevra Art Project</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet"/>
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    :root{
+      /* Curated gallery palette */
+      --ink: #0b0f1a;
+      --night: #131a2b;
+      --deep: #0f233f;
+      --mat: #f7f4ee;
+      --stone: #eae6de;
+      --bronze: #b8926a;
+      --gold-1:#c9a876;
+      --gold-2:#a27d4f;
+      --accent:#f1d9a7;
+
+      --shadow-soft: 0 10px 30px rgba(0,0,0,.18);
+      --shadow-deep: 0 25px 50px rgba(0,0,0,.35);
+      --blur: blur(10px);
+      --radius: 18px;
+    }
+
+    /* Subtle gallery background: layered gradients + film grain */
+    body{
+      min-height:100vh;
+      color:#1c2230;
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #243a66 0%, transparent 50%),
+        radial-gradient(900px 600px at 100% 10%, #192a4a 0%, transparent 55%),
+        linear-gradient(135deg, #0b1428 0%, #0a1730 45%, #0c1b3e 100%);
+      font-family:"Manrope", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      position:relative;
+      overflow-x:hidden;
+    }
+    /* Grain overlay (data URI SVG) */
+    body::after{
+      content:"";
+      position:fixed; inset:0; pointer-events:none;
+      background-image: url("data:image/svg+xml;utf8,\
+      <svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'>\
+      <filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.06'/></feComponentTransfer></filter>\
+      <rect width='100%' height='100%' filter='url(%23n)'/>\
+      </svg>");
+      mix-blend-mode:soft-light; opacity:.35;
+    }
+
+    /* Gold text gradient helper */
+    .gold-text{
+      background:linear-gradient(135deg, var(--gold-1), var(--gold-2));
+      -webkit-background-clip:text; background-clip:text;
+      color:transparent;
+    }
+
+    /* NAV */
+    .navbar{
+      background: rgba(10,16,30,.55) !important;
+      backdrop-filter: var(--blur);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow-soft);
+    }
+    .navbar-brand{
+      font-family: "Cormorant Garamond", serif;
+      font-weight:700; letter-spacing:.5px;
+      font-size: 1.9rem;
+      color: #f3e8cc !important;
+      display:flex; align-items:center; gap:.6rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+    .navbar-brand i{
+      color:var(--accent);
+      filter: drop-shadow(0 6px 12px rgba(255, 230, 180, .25));
+    }
+
+    /* HERO */
+    .hero{
+      position:relative; isolation:isolate;
+      padding:120px 0 90px;
+      text-align:center;
+      color:#f4efe6;
+    }
+    .hero .title{
+      font-family:"Cormorant Garamond", serif;
+      font-weight:700;
+      font-size: clamp(2.6rem, 4.5vw, 4.2rem);
+      line-height:1.05;
+      margin:0 0 14px;
+      letter-spacing:.4px;
+    }
+    .hero .subtitle{
+      font-weight:300; opacity:.92;
+      font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+      margin-bottom:18px;
+    }
+    .hero .lead{
+      color:#f0e9db; opacity:.9;
+    }
+
+    /* Brush underline for title (SVG mask) */
+    .brush-underline{
+      display:inline-block; position:relative;
+    }
+    .brush-underline::after{
+      content:"";
+      position:absolute; left:50%; transform:translateX(-50%);
+      bottom:-16px; width: 76%; height:14px;
+      background-image:url("data:image/svg+xml;utf8,\
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 80' preserveAspectRatio='none'>\
+        <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0%' stop-color='%23c9a876'/><stop offset='100%' stop-color='%23a27d4f'/></linearGradient></defs>\
+        <path d='M5,55 C80,30 140,70 220,40 320,0 410,95 590,20 L595,60 0,70Z' fill='url(%23g)' opacity='0.85'/>\
+      </svg>");
+      background-size:cover; filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    }
+
+    /* SECTION heading */
+    .section-title{
+      text-align:center; margin-bottom:2.6rem;
+      color:#f6efde;
+      font-family:"Cormorant Garamond", serif;
+      font-size: clamp(1.8rem, 2.4vw, 2.4rem);
+      letter-spacing:.3px;
+      position:relative;
+    }
+    .section-title .dot{
+      display:inline-block; width:10px; height:10px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #ffe6b3, #b88d5a 70%);
+      box-shadow: 0 0 18px rgba(255,220,150,.35), 0 0 2px rgba(255,255,255,.35) inset;
+      margin: 0 .5rem;
+    }
+
+    /* ARTIST CARD — framed mat look */
+    .artist-card{
+      background: var(--mat);
+      border-radius: calc(var(--radius) + 6px);
+      position:relative; overflow:hidden;
+      box-shadow: var(--shadow-soft);
+      transition: transform .35s ease, box-shadow .35s ease;
+      margin-bottom:2rem; cursor:pointer;
+    }
+    .artist-card::before{
+      /* frame edge */
+      content:"";
+      position:absolute; inset:0;
+      border-radius: calc(var(--radius) + 6px);
+      padding:10px; /* frame thickness */
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.85), rgba(255,255,255,.65)) padding-box,
+        linear-gradient(135deg, var(--gold-1), var(--gold-2)) border-box;
+      -webkit-mask:
+        linear-gradient(#000 0 0) padding-box, 
+        linear-gradient(#000 0 0) border-box;
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      pointer-events:none;
+    }
+    .artist-card:hover{
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-deep);
+    }
+    .artist-card-body{ padding: 1.1rem 1rem 1.6rem; }
+    .artist-card-inner{
+      border-radius: var(--radius);
+      min-height: 160px;
+      display:grid; place-items:center;
+      color:#fff; text-align:center;
+      padding:2.6rem 1.2rem;
+      position:relative; overflow:hidden;
+      background:
+        radial-gradient(120px 80px at 15% 15%, rgba(255,255,255,.28), transparent 60%),
+        radial-gradient(160px 120px at 85% 80%, rgba(255,214,150,.25), transparent 60%),
+        linear-gradient(135deg, #3d2c16 0%, #7b5b2e 35%, #2b2f53 100%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    /* subtle canvas texture on inner */
+    .artist-card-inner::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      opacity:.22; mix-blend-mode:soft-light;
+      background-image:url("data:image/svg+xml;utf8,\
+      <svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'>\
+        <defs><pattern id='p' width='20' height='20' patternUnits='userSpaceOnUse'>\
+          <path d='M2 10 Q10 2 18 10 T34 10' fill='none' stroke='%23ffffff' stroke-opacity='.06' stroke-width='1'/>\
+        </pattern></defs>\
+        <rect width='100%' height='100%' fill='url(%23p)'/>\
+      </svg>");
+    }
+    .artist-name{
+      margin:0; font-size:1.6rem; font-weight:700;
+      font-family:"Cormorant Garamond", serif;
+      letter-spacing:.3px;
+      text-shadow: 0 3px 12px rgba(0,0,0,.35);
+    }
+
+    /* Offcanvas (artist profile) */
+    .offcanvas{
+      width: 540px !important;
+      background:
+        radial-gradient(800px 400px at 100% 0%, rgba(255,235,180,.06), transparent 60%),
+        linear-gradient(180deg, #0f1730, #0b1326);
+      color:#f6efde;
+      border-left:1px solid rgba(255,255,255,.08);
+      box-shadow: -8px 0 30px rgba(0,0,0,.35);
+    }
+    .offcanvas-header{
+      background:
+        linear-gradient(135deg, rgba(201,168,118,.35), rgba(162,125,79,.25));
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .offcanvas-title{
+      font-family:"Cormorant Garamond", serif; font-weight:700; letter-spacing:.4px;
+    }
+    .artist-specialty-badge{
+      display:inline-flex; align-items:center; gap:.5rem;
+      background: linear-gradient(135deg, rgba(201,168,118,.25), rgba(162,125,79,.2));
+      color:#ffe9c2; border:1px solid rgba(255,255,255,.12);
+      padding:.45rem .9rem; border-radius:999px; font-weight:600; margin-bottom:1rem;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+    }
+    .artist-bio{
+      background: rgba(255,255,255,.06);
+      border-left: 4px solid var(--bronze);
+      padding:1.1rem 1.2rem; border-radius: 10px;
+      line-height:1.65; color:#f1eadb; margin-bottom:1.6rem;
+    }
+
+    /* Carousel in offcanvas */
+    .carousel-item img{
+      height: 360px; object-fit:cover; border-radius:14px;
+      box-shadow: var(--shadow-soft);
+    }
+    .carousel-caption{
+      background: rgba(8,10,18,.68);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px; padding:.75rem .9rem;
+      backdrop-filter: blur(6px);
+    }
+    .carousel-indicators [data-bs-target]{
+      width:10px; height:10px; border-radius:50%;
+      background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+    }
+
+    /* Container cards section spacing */
+    .section-wrap{
+      background:
+        radial-gradient(900px 600px at -10% 110%, rgba(255,220,170,.06), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 45%);
+      padding: 60px 0 80px;
+      position:relative;
+    }
+
+    /* Footer plaque */
+    .plaque{
+      margin: 40px auto 80px; max-width: 820px; text-align:center;
+      background: linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px; padding: 16px 22px;
+      color:#e8e0cf; font-size:.95rem;
+    }
+    .plaque .emph{ color:#ffe7b8; }
+
+    /* Small tweaks */
+    .btn-back{
+      background: linear-gradient(135deg, var(--deep), #1f2b54);
+      color:#f6efde; border:1px solid rgba(255,255,255,.1);
+      border-radius:999px; padding:.65rem 1.2rem; text-decoration:none;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,.2);
+      display:inline-block;
+    }
+    .btn-back:hover{ transform: translateY(-2px); box-shadow: 0 16px 26px rgba(0,0,0,.28); color:#fff; }
+
+    /* Make cards breathe on smaller screens */
+    @media (max-width: 575.98px){
+      .artist-card-inner{ min-height: 140px; padding: 2.2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#" onclick="showMainPage()">
+        <i class="fas fa-palette"></i>
+        <span>Hevra <span class="gold-text">Art</span> Project</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div id="mainPage">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <h1 class="title">
+          <span class="brush-underline">Hevra Art Project</span>
+        </h1>
+        <p class="subtitle">Curated contemporary works, intimate stories, living color.</p>
+        <p class="lead">Explore nine exceptional artists and their evolving galleries.</p>
+      </div>
+    </section>
+
+    <!-- ARTISTS -->
+    <section class="section-wrap">
+      <div class="container">
+        <h2 class="section-title">
+          <span class="gold-text">Featured</span> <span class="dot"></span> Artists
+        </h2>
+
+        <div class="row g-4">
+          <!-- 1 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(1)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Ahmet Arpa</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 2 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(2)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Elif Yavuz</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 3 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(3)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Ercan Altuntaş</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 4 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(4)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Eylül Meryem Söylemez</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 5 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(5)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Henar Daşğın Bektaş</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 6 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(6)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Mahmut Başkurt</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 7 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(7)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Mehmet Akan</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 8 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(8)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Mehmet Uygur</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 9 -->
+          <div class="col-lg-4 col-md-6" onclick="showArtistOffcanvas(9)">
+            <div class="artist-card">
+              <div class="artist-card-body">
+                <div class="artist-card-inner">
+                  <h3 class="artist-name">Selim Almam</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="plaque">
+          This collection is presented by <span class="emph">Hevra</span> — celebrating living artists through intimate, digital salons.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ARTIST OFFCANVAS -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="artistOffcanvas" aria-labelledby="artistOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="artistOffcanvasLabel">Artist Name</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="artist-specialty-badge" id="artistSpecialty">
+        <i class="fa-solid fa-swatchbook"></i> Specialty
+      </div>
+      <div class="artist-bio" id="artistBio">Artist biography will appear here...</div>
+
+      <h6 class="mb-3"><i class="fas fa-images me-2"></i>Artwork Gallery</h6>
+
+      <div id="offcanvasCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators" id="offcanvasCarouselIndicators"></div>
+        <div class="carousel-inner" id="offcanvasCarouselInner"></div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#offcanvasCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#offcanvasCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      <div class="mt-4">
+        <a class="btn-back" href="#" onclick="document.getElementById('artistOffcanvas')?.dispatchEvent(new Event('hide')); return false;">
+          ← Back to Exhibition
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Artist data with sample artwork
+    const artists = {
+      1:{ name:"Ahmet Arpa", specialty:"Artist",
+        bio:"Ahmet Arpa is a renowned abstract expressionist known for vibrant color fields and gestural energy, exploring emotion as form.",
+        artworks:[
+          {title:"Crimson Dreams", image:"ahmet-arpa/ahmet-arpa1.jpeg",  description:"An explosive mix of reds and oranges capturing raw emotion"},
+          {title:"Crimson Dreams", image:"ahmet-arpa/ahmet-arpa2.jpeg",  description:"An explosive mix of reds and oranges capturing raw emotion"},
+          {title:"Crimson Dreams", image:"ahmet-arpa/ahmet-arpa3.jpeg",  description:"An explosive mix of reds and oranges capturing raw emotion"},
+          {title:"Crimson Dreams", image:"ahmet-arpa/ahmet-arpa4.jpeg",  description:"An explosive mix of reds and oranges capturing raw emotion"}
+        ]},
+      2:{ name:"Elif Yavuz", specialty:"Artist",
+        bio:"Elif Yavuz pairs traditional technique with modern subjects, inviting a slower look at everyday theatres of life.",
+        artworks:[
+          {title:"Urban Portrait", image:"elif-yavuz/elif-yavuz1.jpeg",  description:"A striking portrait of city life"},
+          {title:"Urban Portrait", image:"elif-yavuz/elif-yavuz2.jpeg",  description:"A striking portrait of city life"},
+          {title:"Urban Portrait", image:"elif-yavuz/elif-yavuz3.jpeg",  description:"A striking portrait of city life"}
+        ]},
+      3:{ name:"Ercan Altuntaş", specialty:"Artist",
+        bio:"Ercan Altuntaş captures fleeting light and color, painting scenes that shimmer with breath and time.",
+        artworks:[
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas1.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas2.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas3.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas4.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas5.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas6.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas7.jpeg", description:"Delicate brushwork in bloom"},
+          {title:"Garden in Spring", image:"ercan-altuntas/ercan-altuntas8.jpeg", description:"Delicate brushwork in bloom"}
+        ]},
+      4:{ name:"Eylül Meryem Söylemez", specialty:"Artist",
+        bio:"Eylül Meryem Söylemez builds dream logic into visual worlds that question gravity, time, and recall.",
+        artworks:[
+          {title:"Floating Islands", image:"eylul-meryem-sonmez/eylul-meryem-sonmez1.jpeg", description:"Impossible landscapes"},
+          {title:"Floating Islands", image:"eylul-meryem-sonmez/eylul-meryem-sonmez2.jpeg", description:"Impossible landscapes"},
+          {title:"Floating Islands", image:"eylul-meryem-sonmez/eylul-meryem-sonmez3.jpeg", description:"Impossible landscapes"}
+        ]},
+      5:{ name:"Henar Daşğın Bektaş", specialty:"Artist",
+        bio:"Henar Daşğın Bektaş translates walls into canvas—bold, civic, lyrical.",
+        artworks:[
+          {title:"Voice of the Streets", image:"henar-dasgin-bektas/henar-dasgin-bektas1.jpeg", description:"Typography in motion"},
+          {title:"Voice of the Streets", image:"henar-dasgin-bektas/henar-dasgin-bektas2.jpeg", description:"Typography in motion"},
+          {title:"Voice of the Streets", image:"henar-dasgin-bektas/henar-dasgin-bektas3.jpeg", description:"Typography in motion"},
+          {title:"Voice of the Streets", image:"henar-dasgin-bektas/henar-dasgin-bektas4.jpeg", description:"Typography in motion"}
+        ]},
+      6:{ name:"Mahmut Başkurt", specialty:"Artist",
+        bio:"Mahmut Başkurt composes essential forms and quiet tensions, where less says more.",
+        artworks:[
+          {title:"Simple Lines", image:"mahmut-baskurt/mahmut-baskurt1.jpeg", description:"Geometric balance"},
+          {title:"Simple Lines", image:"mahmut-baskurt/mahmut-baskurt2.jpeg", description:"Geometric balance"},
+          {title:"Simple Lines", image:"mahmut-baskurt/mahmut-baskurt3.jpeg", description:"Geometric balance"},
+          {title:"Simple Lines", image:"mahmut-baskurt/mahmut-baskurt4.jpeg", description:"Geometric balance"},
+          {title:"Simple Lines", image:"mahmut-baskurt/mahmut-baskurt5.jpeg", description:"Geometric balance"}
+        ]},
+      7:{ name:"Mehmet Akan", specialty:"Artist",
+        bio:"Mehmet Akan extends the classical tradition with contemporary soul.",
+        artworks:[
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan1.jpeg", description:"Old masters, new breath"},
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan2.jpeg", description:"Old masters, new breath"},
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan3.jpeg", description:"Old masters, new breath"},
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan4.jpeg", description:"Old masters, new breath"},
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan5.jpeg", description:"Old masters, new breath"},
+          {title:"Renaissance Revival", image:"mehmet-akan/mehmet-akan6.jpeg", description:"Old masters, new breath"}
+        ]},
+      8:{ name:"Mehmet Uygur", specialty:"Artist",
+        bio:"Mehmet Uygur masters translucence and spontaneity with precise control.",
+        artworks:[
+          {title:"Flowing Waters", image:"mehmet-uygur/mehmet-uygur1.png", description:"Liquid light"},
+          {title:"Flowing Waters", image:"mehmet-uygur/mehmet-uygur2.png", description:"Liquid light"},
+          {title:"Flowing Waters", image:"mehmet-uygur/mehmet-uygur3.png", description:"Liquid light"},
+          {title:"Flowing Waters", image:"mehmet-uygur/mehmet-uygur4.png", description:"Liquid light"}
+        ]},
+      9:{ name:"Selim Almam", specialty:"Artist",
+        bio:"Selim Almam fuses paint and pixels into hybrid memory.",
+        artworks:[
+          {title:"Digital Dreams", image:"selim-alman/selim-alman1.jpeg", description:"Analog/virtual duet"},
+          {title:"Digital Dreams", image:"selim-alman/selim-alman2.jpeg", description:"Analog/virtual duet"},
+          {title:"Digital Dreams", image:"selim-alman/selim-alman3.jpeg", description:"Analog/virtual duet"}
+        ]}
+    };
+
+    function showArtistOffcanvas(artistId){
+      const artist = artists[artistId];
+      if(!artist) return;
+
+      document.getElementById('artistOffcanvasLabel').textContent = artist.name;
+      document.getElementById('artistSpecialty').innerHTML = `<i class="fa-solid fa-swatchbook"></i> ${artist.specialty}`;
+      document.getElementById('artistBio').textContent = artist.bio;
+
+      // indicators
+      const indicators = document.getElementById('offcanvasCarouselIndicators');
+      indicators.innerHTML = '';
+      artist.artworks.forEach((_, i)=>{
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-bs-target','#offcanvasCarousel');
+        b.setAttribute('data-bs-slide-to', i);
+        if(i===0) b.classList.add('active');
+        indicators.appendChild(b);
+      });
+
+      // items
+      const inner = document.getElementById('offcanvasCarouselInner');
+      inner.innerHTML = '';
+      artist.artworks.forEach((artwork, i)=>{
+        const item = document.createElement('div');
+        item.className = `carousel-item ${i===0 ? 'active' : ''}`;
+        item.innerHTML = `
+          <img src="${artwork.image}" class="d-block w-100" alt="${artwork.title}">
+          <div class="carousel-caption d-none d-md-block">
+            <h6 class="mb-1">${artwork.title}</h6>
+            <p class="small mb-0">${artwork.description}</p>
+          </div>
+        `;
+        inner.appendChild(item);
+      });
+
+      // Show offcanvas
+      const offcanvas = new bootstrap.Offcanvas('#artistOffcanvas');
+      offcanvas.show();
+
+      // Ensure carousel starts from first slide each time
+      const carousel = bootstrap.Carousel.getOrCreateInstance('#offcanvasCarousel', { interval: 4200, ride: false, wrap: true });
+      carousel.to(0);
+    }
+
+    // Init (keeps the carousel instance around)
+    document.addEventListener('DOMContentLoaded', ()=>{
+      bootstrap.Carousel.getOrCreateInstance('#offcanvasCarousel', { interval: 4200, ride: false, wrap: true });
+    });
+
+    function showMainPage(){ /* hook kept for your nav brand */ }
+  </script>
+</body>
+</html>
